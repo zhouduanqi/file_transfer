@@ -1,4 +1,3 @@
-# This is my first edit!! - oliver was here
 
 CC=gcc
 CFLAGS=-O2 -march=native -pipe
