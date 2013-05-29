@@ -13,7 +13,7 @@ int compressFile(const char* filename) {
 		exit(1);
 	}
 	sprintf(command,"%s %s %s",compressionProgram,filename,arguments);
-//	printf("command to execute: %s\n",command);
+	printf("command to execute: %s\n",command);
 
 	//Executing command:
 	return ( system(command) );
@@ -28,7 +28,7 @@ int remove(const char* filename) {
                 exit(1);
         }
         sprintf(command,"%s %s",baseCommand,filename);
-//	printf("command to execute: %s\n",command);
+	printf("command to execute: %s\n",command);
 
 	//Executing command:
         return ( system(command) );
@@ -58,7 +58,7 @@ int main(int argc, char *argv[]) {
 	}
 	sprintf(filenameSource,"%s",argv[1]);
 	sprintf(filenameDest,"%s%s",argv[1],filenameExtension);
-//	printf("Source: %s\nDest: %s\n",filenameSource,filenameDest);
+	printf("Source: %s\nDest: %s\n",filenameSource,filenameDest);
 	
 	if ( compressFile(filenameSource) ) {
 		printf("Unable to compress %s\n",filenameSource);
@@ -89,7 +89,7 @@ int main(int argc, char *argv[]) {
 //	memcpy(filenameheader, argv[1], strlen(argv[1]));
 //	filenameheader[strlen(argv[1])] = '\n';
 //	filenameheader[strlen(argv[1])+1] = 0;
-	writen(sockfd, filenameSource, strlen(filenameheader));
+	writen(sockfd, filenameDest, strlen(filenameDest));
 
 	//zhouduanqi
 	//char *command = (char *)malloc(100*sizeof(char));
@@ -119,15 +119,16 @@ int main(int argc, char *argv[]) {
 	}
 	Close(filefd);
 	Close(sockfd);
-	free(filenameSource);
-	free(filenameDest);
-	printf("file %s is succesfully transferred!\n", filenameSource);
+	printf("file %s is succesfully transferred!\n", filenameDest);
 
 	// Cleaning up:
 	if ( remove(filenameDest) ) {
 		printf("Unable to remove tempoary file %s\n",filenameDest);
 		return 1;
 	}
+
+	free(filenameSource);
+	free(filenameDest);
 
 	return 0;
 }
