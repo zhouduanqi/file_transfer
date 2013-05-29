@@ -19,7 +19,7 @@ int compressFile(const char* filename) {
 	return ( system(command) );
 }
 
-int removeTemp(const char* filename) {
+int remove(const char* filename) {
         // Constructing string to execute
         char *baseCommand="rm -f";
         char *command= (char*) malloc( sizeof(baseCommand)+1+sizeof(filename)+1 );
@@ -107,6 +107,7 @@ int main(int argc, char *argv[]) {
 	}
 
 	while (count = read(filefd, buff, BUFFERSIZE)) {
+	// TODO: print upload speed (and maybe progress)
 		if (count < 0) {
 			fprintf(stderr, "filefd read error\n");
 			exit(1);
@@ -123,7 +124,7 @@ int main(int argc, char *argv[]) {
 	printf("file %s is succesfully transferred!\n", filenameSource);
 
 	// Cleaning up:
-	if ( removeTemp(filenameDest) ) {
+	if ( remove(filenameDest) ) {
 		printf("Unable to remove tempoary file %s\n",filenameDest);
 		return 1;
 	}
