@@ -1,35 +1,33 @@
-CC=gcc
-PROG_NAME=fileclient fileserver    
-# ELF文件
-INCS=common/common.h
-SRCS=client2.c server2.c    
-# C文件
 
-# 从 .c 文件到 .o 文件
+CC=gcc
+#CFLAGS=-O2 -march=native -pipe
+CFLAGS=-g
+PROG_NAME=fileclient fileserver
+INCS=common/common.h
+SRCS=client2.c server2.c
 OBJS=${SRCS:.c=.o}
 
 # libs
 LIBS=
-# ---- 用户修改区域结束
 
 # _________________________________________________
 
 all:${PROG_NAME}
 
 fileclient:client2.o common/common.o
-	${CC} -o $@ $^
+	${CC} -o $@ $^ ${CFLAGS}
 
 fileserver:server2.o common/common.o
-	${CC} -o $@ $^
+	${CC} -o $@ $^ ${CFLAGS}
 
 # 如果有头文件进行修改，则自动编译源文件
 ${OBJS}:${INCS}
 
 .c.o:
-	${CC} -c $< -Icommon
+	${CC} -c $< -Icommon ${CFLAGS}
 
 common/common.o:common/common.c common/common.h
-	cd common && ${CC} -c common.c
+	cd common && ${CC} -c common.c ${CFLAGS}
 
 clean:
 	rm -f *.o ${PROG_NAME} common/*.o

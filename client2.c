@@ -1,7 +1,42 @@
 #include "common/common.h"
 
-int main(int argc, char *argv[])
-{
+const char* compressionProgram="lzop";
+const char *filenameExtension=".lzo";
+char *arguments="-1 --force"; // 1 is fastest, 9 is best compression. '--force- is for overwriting
+
+int compressFile(const char* filename) {
+
+	// Constructing string to execute
+	char *command= (char*) malloc( sizeof(compressionProgram)+1+sizeof(filename)+1+sizeof(arguments)+1 );
+	if (command==NULL) {
+		printf("Unable to allocate mem\n");
+		exit(1);
+	}
+	sprintf(command,"%s %s %s",compressionProgram,filename,arguments);
+//	printf("command to execute: %s\n",command);
+
+	//Executing command:
+	return ( system(command) );
+}
+
+int remove(const char* filename) {
+        // Constructing string to execute
+        char *baseCommand="rm -f";
+        char *command= (char*) malloc( sizeof(baseCommand)+1+sizeof(filename)+1 );
+        if (command==NULL) {
+                printf("Unable to allocate mem\n");
+                exit(1);
+        }
+        sprintf(command,"%s %s",baseCommand,filename);
+//	printf("command to execute: %s\n",command);
+
+	//Executing command:
+        return ( system(command) );
+}
+
+
+int main(int argc, char *argv[]) {
+
 	if (argc != 3) {
 		fprintf(stderr, "Usage: ./fileclient <file> <serverIP>\n");
 		exit(1);
@@ -13,6 +48,24 @@ int main(int argc, char *argv[])
 	struct sockaddr_in servaddr;
 	int filefd;    /* file descriptor */
 	int count;
+
+	const int filenameExtensionLength=sizeof(filenameExtension);
+	char *filenameSource= (char*) malloc(sizeof(argv[1])); // basename
+	char *filenameDest= (char*) malloc(sizeof(argv[1])+filenameExtensionLength); // basename+extension
+	if (filenameSource==NULL || filenameDest==NULL) {
+		printf("Unable to allocate mem\n");
+		exit(1);
+	}
+	sprintf(filenameSource,"%s",argv[1]);
+	sprintf(filenameDest,"%s%s",argv[1],filenameExtension);
+//	printf("Source: %s\nDest: %s\n",filenameSource,filenameDest);
+	
+	if ( compressFile(filenameSource) ) {
+		printf("Unable to compress %s\n",filenameSource);
+		exit(1);
+	} else printf("Succesfully created %s\n",filenameDest);
+	
+//	exit(0); // For debugging - exit before we go online
 
 	sockfd = Socket(AF_INET, SOCK_STREAM, 0);
 
@@ -32,11 +85,11 @@ int main(int argc, char *argv[])
 	//memcpy(filenameheader, a_test, strlen(a_test));
 
 	//
-	printf("transferring file name: %s........\n", argv[1]);
-	memcpy(filenameheader, argv[1], strlen(argv[1]));
-	filenameheader[strlen(argv[1])] = '\n';
-	filenameheader[strlen(argv[1])+1] = 0;
-	writen(sockfd, filenameheader, strlen(filenameheader));
+	printf("transferring file name: %s ........\n", filenameDest);
+//	memcpy(filenameheader, argv[1], strlen(argv[1]));
+//	filenameheader[strlen(argv[1])] = '\n';
+//	filenameheader[strlen(argv[1])+1] = 0;
+	writen(sockfd, filenameSource, strlen(filenameheader));
 
 	//zhouduanqi
 	//char *command = (char *)malloc(100*sizeof(char));
@@ -44,16 +97,17 @@ int main(int argc, char *argv[])
 	//system(command);
 	//end
 
-	printf("will transfer file: %s\n", argv[1]);
+	printf("will transfer file: %s\n", filenameDest);
 
-	filefd = open(argv[1], O_RDONLY);
-	//filefd = open("test.tar.gz", O_RDONLY);
+	filefd = open(filenameDest, O_RDONLY);
+
 	if (filefd < 0) {
-		fprintf(stderr, "can't open the file: %s\n", argv[1]);
+		fprintf(stderr, "can't open the file: %s\n", filenameDest);
 		exit(1);
 	}
 
-	while(count = read(filefd, buff, BUFFERSIZE)) {
+	while (count = read(filefd, buff, BUFFERSIZE)) {
+	// TODO: print upload speed (and maybe progress)
 		if (count < 0) {
 			fprintf(stderr, "filefd read error\n");
 			exit(1);
@@ -65,8 +119,15 @@ int main(int argc, char *argv[])
 	}
 	Close(filefd);
 	Close(sockfd);
-	printf("file %s transferred!\n", argv[1]);
-	//////////////////////////////////////////////////////////
+	free(filenameSource);
+	free(filenameDest);
+	printf("file %s is succesfully transferred!\n", filenameSource);
+
+	// Cleaning up:
+	if ( remove(filenameDest) ) {
+		printf("Unable to remove tempoary file %s\n",filenameDest);
+		return 1;
+	}
 
 	return 0;
 }
