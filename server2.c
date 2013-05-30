@@ -9,15 +9,14 @@ int decompress(const char* filename) {
 	char *arguments="--decompress";
         char *command= (char*) malloc(
 		sizeof(decompressionProgram)+1
-		+sizeof(filename)
-		+sizeof(filenameExtension)+1
+		+sizeof(filename)+1
 		+sizeof(arguments)+1
 	);
         if (command==NULL) {
                 printf("Unable to allocate mem\n");
                 exit(1);
         }
-        sprintf(command,"%s %s%s %s",decompressionProgram,filename,filenameExtension,arguments);
+        sprintf(command,"%s %s %s",decompressionProgram,filename,arguments);
 //      printf("command to execute: %s\n",command);
 
         //Executing command:
@@ -73,7 +72,7 @@ int main(void)
 		}
 		buff[strlen(buff) - 1] = 0;    /* change '\n' to NUL */
 		memcpy(filename, buff, BUFFERSIZE + 1);
-		printf("will save to file: %s\n", buff);
+		printf("will save to file: %s\nlength: %d\n", filename, strlen(filename));
 
 		filefd = open(buff, O_WRONLY | O_CREAT, S_IRUSR);
 		// Added mode 'S_IRUSR' - required when compiling with optimiziation flags
@@ -99,11 +98,11 @@ int main(void)
 		printf("file %s received!\n", filename);
 
 		if ( decompress(filename) ) {
-			printf("Unable to decompress %s%s\n",filename,".lzo");
+			printf("Unable to decompress %s\n",filename);
 			return 1;
 		}
 
-		if ( remove(strcat(filename, ".lzo")) ) {
+		if ( remove(filename) ) {
                 	printf("Unable to remove tempoary file %s%s\n",filename,filenameExtension);
                 	return 1;
         	}
