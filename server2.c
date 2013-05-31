@@ -1,22 +1,22 @@
 #include "common/common.h"
 
-const char* decompressionProgram="lzop";
-const char *filenameExtension=".lzo";
+const char* decompressionProgram="tar";
+const char *filenameExtension=".tar.gz";
 
 int decompress(const char* filename) {
 
         // Constructing string to execute
-	char *arguments="--decompress";
+	char *arguments="-xzf";
         char *command= (char*) malloc(
 		sizeof(decompressionProgram)+1
-		+sizeof(filename)+1
 		+sizeof(arguments)+1
+		+sizeof(filename)+1
 	);
         if (command==NULL) {
                 printf("Unable to allocate mem\n");
                 exit(1);
         }
-        sprintf(command,"%s %s %s",decompressionProgram,filename,arguments);
+        sprintf(command,"%s %s %s",decompressionProgram,arguments,filename);
 //      printf("command to execute: %s\n",command);
 
         //Executing command:

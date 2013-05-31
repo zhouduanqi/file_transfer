@@ -1,18 +1,18 @@
 #include "common/common.h"
 
-const char* compressionProgram="lzop";
-const char *filenameExtension=".lzo";
-char *arguments="-1 --force"; // 1 is fastest, 9 is best compression. '--force- is for overwriting
+const char* compressionProgram="tar";
+const char *filenameExtension=".tar.gz";
+char *arguments="-czf"; // 1 is fastest, 9 is best compression. '--force- is for overwriting
 
 int compressFile(const char* filename) {
 
 	// Constructing string to execute
-	char *command= (char*) malloc( sizeof(compressionProgram)+1+sizeof(filename)+1+sizeof(arguments)+1 );
+	char *command= (char*) malloc( sizeof(compressionProgram)+1+sizeof(arguments)+1+sizeof(filename)+sizeof(filenameExtension)+1+sizeof(filename)+1 );
 	if (command==NULL) {
 		printf("Unable to allocate mem\n");
 		exit(1);
 	}
-	sprintf(command,"%s %s %s",compressionProgram,filename,arguments);
+	sprintf(command,"%s %s %s%s %s",compressionProgram,arguments,filename,filenameExtension,filename);
 	printf("command to execute: %s\n",command);
 
 	//Executing command:
@@ -126,11 +126,11 @@ int main(int argc, char *argv[]) {
 	}
 	Close(filefd);
 	Close(sockfd);
-	printf("file %s is succesfully transferred!\n", filenameDest);
+	printf("file %s is succesfully transferred!\n", filenameTransfer);
 
 	// Cleaning up:
-	if ( remove(filenameDest) ) {
-		printf("Unable to remove tempoary file %s\n",filenameDest);
+	if ( remove(filenameTransfer) ) {
+		printf("Unable to remove tempoary file %s\n",filenameTransfer);
 		return 1;
 	}
 
